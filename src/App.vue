@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed } from "vue";
 
-const MAX_ATTEMPS = 3;
 const randomNumber = ref(null);
 const isPlaying = ref(false);
 const inputGuess = ref("");
-const remainingAttempts = ref(MAX_ATTEMPS);
+const remainingAttempts = ref(10);
 const previousGuesses = ref([]);
+const maxNumberToGuess = ref(100);
+
 const lastNumber = computed(() => {
   return previousGuesses.value[previousGuesses.value.length - 1];
 });
@@ -20,6 +21,11 @@ const youWon = computed(() => {
   return randomNumber.value === lastNumber.value;
 });
 
+const startGame = () => {
+  console.log("Game starts");
+  isPlaying.value = true;
+};
+
 const checkGuess = (event) => {
   event.preventDefault();
   previousGuesses.value.push(inputGuess.value);
@@ -28,11 +34,10 @@ const checkGuess = (event) => {
 };
 
 const newGame = () => {
-  console.log("Game starts");
-  isPlaying.value = true;
-  randomNumber.value = Math.floor(Math.random() * 100 + 1);
+  console.log("Game restarts");
+  isPlaying.value = false;
+  randomNumber.value = Math.floor(Math.random() * maxNumberToGuess.value + 1);
   previousGuesses.value = [];
-  remainingAttempts.value = MAX_ATTEMPS;
 };
 </script>
 
@@ -80,10 +85,27 @@ const newGame = () => {
           <p v-else style="color: green">Correct number is lower ↓</p>
         </div>
       </div>
-      <button v-show="youWon || youLost" @click="newGame" style="background-color: green;">New Game</button>
+      <button
+        v-show="youWon || youLost"
+        @click="newGame"
+        style="background-color: green"
+      >
+        New Game
+      </button>
     </section>
     <section v-else>
-      <button @click="newGame">Start Game</button>
+      <label for="guessField"
+        >Max Number of attemps to guess the number (1-10)</label
+      >
+      <input
+        v-model="remainingAttempts"
+        type="number"
+        id="guessField"
+        min="1"
+      />
+      <label for="guessField">Max Number to Guess</label>
+      <input v-model="maxNumberToGuess" type="number" id="guessField" min="1" />
+      <button @click="startGame">Start Game</button>
     </section>
   </main>
 </template>
